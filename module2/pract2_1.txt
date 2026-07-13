@@ -1,0 +1,261 @@
+root@eltex-practice2-v28:~# sudo useradd -m -s /bin/bash user1 --password user1
+root@eltex-practice2-v28:~# useradd -m user2 --password user2
+root@eltex-practice2-v28:~# useradd user3 -m
+root@eltex-practice2-v28:~# id user1; id user2; id user3
+uid=1001(user1) gid=1001(user1) groups=1001(user1)
+uid=1002(user2) gid=1002(user2) groups=1002(user2)
+uid=1003(user3) gid=1003(user3) groups=1003(user3)
+root@eltex-practice2-v28:~# usermod -s /usr/sbin/nologin user3
+root@eltex-practice2-v28:~# su user3
+This account is currently not available.
+root@eltex-practice2-v28:~# su user3 -s /bin/bash
+user3@eltex-practice2-v28:/root$ logout
+bash: logout: not login shell: use `exit'
+user3@eltex-practice2-v28:/root$ exit
+exit
+root@eltex-practice2-v28:~# groupadd usergroup
+root@eltex-practice2-v28:~# usermod -G usergroup user1
+root@eltex-practice2-v28:~# usermod -G usergroup user2
+root@eltex-practice2-v28:~# usermod -G usergroup user3
+root@eltex-practice2-v28:~# groups user1; groups user2; groups user3;
+user1 : user1 usergroup
+user2 : user2 usergroup
+user3 : user3 usergroup
+root@eltex-practice2-v28:~# mkdir /opt/share
+root@eltex-practice2-v28:~# chgrp usergroup /opt/share
+root@eltex-practice2-v28:~# chmod 2770 /opt/share
+root@eltex-practice2-v28:~# ls -ld /opt/share
+drwxrws--- 2 root usergroup 4096 Jul 12 17:24 /opt/share
+root@eltex-practice2-v28:~# sudo nano /home/user1/.bashrc
+umask 027
+root@eltex-practice2-v28:~# su user1
+user1@eltex-practice2-v28:/root$ umask
+0027
+user1@eltex-practice2-v28:/root$ touch /opt/share/file_user1.txt
+user1@eltex-practice2-v28:/root$ exit
+exit
+root@eltex-practice2-v28:~# su user2
+$ touch /opt/share/file_user2.txt
+$ exit
+root@eltex-practice2-v28:~# touch /opt/share/file_user3.txt
+root@eltex-practice2-v28:~# rm /opt/share/file_user3.txt
+root@eltex-practice2-v28:~# su user3 -s /bin/bash
+user3@eltex-practice2-v28:/root$ touch /opt/share/file_user3.txt
+user3@eltex-practice2-v28:/root$ eixt
+eixt: command not found
+user3@eltex-practice2-v28:/root$ exit
+exit
+root@eltex-practice2-v28:~# su user1
+user1@eltex-practice2-v28:/root$ rm /opt/share/file_user2.txt
+user1@eltex-practice2-v28:/root$ exit
+exit
+root@eltex-practice2-v28:~# chmod +t /opt/share
+root@eltex-practice2-v28:~# ls -ld /opt/share
+drwxrws--T 2 root usergroup 4096 Jul 12 17:36 /opt/share
+root@eltex-practice2-v28:~# su user2
+$ touch /opt/share/file2_user2.txt
+$ exit
+root@eltex-practice2-v28:~# su user1
+user1@eltex-practice2-v28:/root$ rm /opt/share/file2_user2.txt
+rm: cannot remove '/opt/share/file2_user2.txt': Operation not permitted
+user1@eltex-practice2-v28:/root$ exit
+exit
+root@eltex-practice2-v28:~# visudo
+user1 ALL=(ALL) NOPASSWD: /usr/bin/dmesg
+
+root@eltex-practice2-v28:~# su user1
+user1@eltex-practice2-v28:/root$ sudo dmesg
+root@eltex-practice2-v28:~# nano dmesg_run.sh
+#!/bin/bash
+/usr/bin/dmesg
+root@eltex-practice2-v28:~# sudo chmod 4755 dmesg_run.sh
+root@eltex-practice2-v28:~# mv dmesg_run.sh /tmp/dmesg_run.sh
+root@eltex-practice2-v28:~# su user2
+$ sudo /tmp/dmesg_run.sh
+[sudo] password for user2: user2
+Sorry, try again
+sudo: 1 incorrect password attempt
+root@eltex-practice2-v28:~# chage -M 10 user1; chage -M 10 user2; chage -M 10 user3
+root@eltex-practice2-v28:~# chage -l user1; chage -l user2; chage -l user3
+Last password change                                    : Jul 12, 2026
+Password expires                                        : Jul 22, 2026
+Password inactive                                       : never
+Account expires                                         : never
+Minimum number of days between password change          : 0
+Maximum number of days between password change          : 10
+Number of days of warning before password expires       : 7
+Last password change                                    : Jul 12, 2026
+Password expires                                        : Jul 22, 2026
+Password inactive                                       : never
+Account expires                                         : never
+Minimum number of days between password change          : 0
+Maximum number of days between password change          : 10
+Number of days of warning before password expires       : 7
+Last password change                                    : Jul 12, 2026
+Password expires                                        : Jul 22, 2026
+Password inactive                                       : never
+Account expires                                         : never
+Minimum number of days between password change          : 0
+Maximum number of days between password change          : 10
+Number of days of warning before password expires       : 7
+root@eltex-practice2-v28:~# sudo nano /etc/motd
+Новицкий Богдан
+root@eltex-practice2-v28:~# rsync -a /etc/ /root/etc_backup/
+root@eltex-practice2-v28:~# tar -cjf /root/etc_backup.bz2 /root/etc_backup
+tar: Removing leading `/' from member names
+root@eltex-practice2-v28:~# apt install bzip2 -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Suggested packages:
+  bzip2-doc
+The following NEW packages will be installed:
+  bzip2
+0 upgraded, 1 newly installed, 0 to remove and 81 not upgraded.
+Need to get 34.5 kB of archives.
+After this operation, 112 kB of additional disk space will be used.
+Get:1 http://ru.archive.ubuntu.com/ubuntu noble-updates/main amd64 bzip2 amd64 1.0.8-5.1build0.1 [34.5 kB]
+Fetched 34.5 kB in 0s (81.7 kB/s)
+Selecting previously unselected package bzip2.
+(Reading database ... 125636 files and directories currently installed.)
+Preparing to unpack .../bzip2_1.0.8-5.1build0.1_amd64.deb ...
+Unpacking bzip2 (1.0.8-5.1build0.1) ...
+Setting up bzip2 (1.0.8-5.1build0.1) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+Scanning processes...
+Scanning linux images...
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+root@eltex-practice2-v28:~# tar -cjf /root/etc_backup.tar.bz2 /root/etc_backup
+tar: Removing leading `/' from member names
+root@eltex-practice2-v28:~# apt install 7zip
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Suggested packages:
+  7zip-standalone 7zip-rar
+The following NEW packages will be installed:
+  7zip
+0 upgraded, 1 newly installed, 0 to remove and 81 not upgraded.
+Need to get 1,846 kB of archives.
+After this operation, 6,306 kB of additional disk space will be used.
+Get:1 http://ru.archive.ubuntu.com/ubuntu noble/universe amd64 7zip amd64 23.01+dfsg-11 [1,846 kB]
+Fetched 1,846 kB in 0s (3,757 kB/s)
+Selecting previously unselected package 7zip.
+(Reading database ... 125663 files and directories currently installed.)
+Preparing to unpack .../7zip_23.01+dfsg-11_amd64.deb ...
+Unpacking 7zip (23.01+dfsg-11) ...
+Setting up 7zip (23.01+dfsg-11) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+Scanning processes...
+Scanning linux images...
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+root@eltex-practice2-v28:~# 7z a /root/etc_backup.7z /root/etc_backup
+
+7-Zip 23.01 (x64) : Copyright (c) 1999-2023 Igor Pavlov : 2023-06-20
+ 64-bit locale=en_US.UTF-8 Threads:2 OPEN_MAX:1024
+
+Scanning the drive:
+
+WARNING: errno=2 : No such file or directory
+/root/etc_backup/os-release
+
+
+WARNING: errno=2 : No such file or directory
+/root/etc_backup/resolv.conf
+
+
+WARNING: errno=2 : No such file or directory
+/root/etc_backup/mtab
+
+244 folders, 1458 files, 38596417 bytes (37 MiB)
+
+Creating archive: /root/etc_backup.7z
+
+Add new data to archive: 244 folders, 1458 files, 38596417 bytes (37 MiB)
+
+
+Files read from disk: 1445
+Archive size: 4617830 bytes (4510 KiB)
+
+Scan WARNINGS for files and folders:
+
+/root/etc_backup/os-release : errno=2 : No such file or directory
+/root/etc_backup/resolv.conf : errno=2 : No such file or directory
+/root/etc_backup/mtab : errno=2 : No such file or directory
+----------------
+Scan WARNINGS: 3
+root@eltex-practice2-v28:~# cd /root/
+root@eltex-practice2-v28:~# ls -lh
+total 5.5M
+drwxr-xr-x 109 root root 4.0K Jul 12 18:02 etc_backup
+-rw-r--r--   1 root root 4.5M Jul 12 18:23 etc_backup.7z
+-rw-r--r--   1 root root 526K Jul 12 18:22 etc_backup.tar.bz2
+-rw-r--r--   1 root root 563K Jul 12 18:19 etc_backup.tar.gz
+----------   1 root root  17K Jul  8 06:04 report2.txt
+root@eltex-practice2-v28:~# echo "$(date)" | sudo tee -a /etc/motd
+Sun Jul 12 06:28:06 PM UTC 2026
+root@eltex-practice2-v28:~# rsync -av --delete /etc/ etc_backup
+sending incremental file list
+motd
+
+sent 66,384 bytes  received 286 bytes  133,340.00 bytes/sec
+total size is 2,331,781  speedup is 34.97
+root@eltex-practice2-v28:~# gunzip etc_backup.tar.gz
+root@eltex-practice2-v28:~# tar -rf /root/etc_backup.tar etc_backup/motd
+root@eltex-practice2-v28:~# gzip /root/etc_backup.tar
+root@eltex-practice2-v28:~# tar -xjf etc_backup.tar.bz2 -C contentcheck
+root@eltex-practice2-v28:~# diff -r contentcheck/root/etc_backup/ etc_backup
+diff -r contentcheck/root/etc_backup/motd etc_backup/motd
+1a2
+> Sun Jul 12 06:28:06 PM UTC 2026
+diff: contentcheck/root/etc_backup/mtab: No such file or directory
+diff: etc_backup/mtab: No such file or directory
+diff: contentcheck/root/etc_backup/os-release: No such file or directory
+diff: etc_backup/os-release: No such file or directory
+diff: contentcheck/root/etc_backup/resolv.conf: No such file or directory
+diff: etc_backup/resolv.conf: No such file or directory
+root@eltex-practice2-v28:~# mkdir etc_backup_gzip etc_backup_7zip
+root@eltex-practice2-v28:~# tar -xzf etc_backup.tar.gz -C etc_backup_gzip
+root@eltex-practice2-v28:~# 7z x etc_backup.7z -oetc_backup_7zip
+
+7-Zip 23.01 (x64) : Copyright (c) 1999-2023 Igor Pavlov : 2023-06-20
+ 64-bit locale=en_US.UTF-8 Threads:2 OPEN_MAX:1024
+
+Scanning the drive for archives:
+1 file, 4617830 bytes (4510 KiB)
+
+Extracting archive: etc_backup.7z
+--
+Path = etc_backup.7z
+Type = 7z
+Physical Size = 4617830
+Headers Size = 20446
+Method = LZMA2:24 BCJ
+Solid = +
+Blocks = 2
+
+Everything is Ok
+
+Folders: 244
+Files: 1458
+Size:       38596417
+Compressed: 4617830
+root@eltex-practice2-v28:~# diff etc_backup_gzip/root/etc_backup//motd etc_backup_7zip/etc_backup/motd
