@@ -1,0 +1,63 @@
+eltex-v28@eltex-2026-summer:~$ mkdir -p D1/D2/D3
+eltex-v28@eltex-2026-summer:~$ touch D1/D2/file.txt
+eltex-v28@eltex-2026-summer:~$ echo "test" > D1/D2/file.txt
+eltex-v28@eltex-2026-summer:~$ ln -s D1/D2/file.txt symlink.txt
+eltex-v28@eltex-2026-summer:~$ ln D1/D2/file.txt hardlink.txt
+eltex-v28@eltex-2026-summer:~$ ls -li
+total 648
+131181 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:23 1_2_16
+131260 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-01
+131261 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-02
+131262 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-03
+131263 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-04
+131264 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-05
+131265 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-06
+131266 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-07
+131267 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-08
+131268 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-09
+131269 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-10
+131270 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-11
+131271 drwxr-xr-x 2 eltex-v28 eltex-v28   4096 Jul 10 00:24 2026-12
+131272 drwxr-xr-x 3 eltex-v28 eltex-v28   4096 Jul 10 00:32 D1
+131212 -rw------- 1 eltex-v28 eltex-v28   2622 Jul  8 11:21 first
+131213 -rw-r--r-- 1 eltex-v28 eltex-v28    581 Jul  8 11:21 first.pub
+131275 -rw-r--r-- 2 eltex-v28 eltex-v28      5 Jul 10 00:32 hardlink.txt
+131119 -rw-r--r-- 1 eltex-v28 eltex-v28 565424 Jul  6 13:35 part1.zip
+131220 --w------- 1 eltex-v28 eltex-v28  17122 Jul  9 18:21 report2.txt
+131116 -rw-r--r-- 1 eltex-v28 eltex-v28    128 Jul  6 13:10 report_part1.txt
+131276 lrwxrwxrwx 1 eltex-v28 eltex-v28     14 Jul 10 00:48 symlink.txt -> D1/D2/file.txt
+eltex-v28@eltex-2026-summer:~$ stat D1/D2/file.txt
+  File: D1/D2/file.txt
+  Size: 5               Blocks: 8          IO Block: 4096   regular file
+Device: 254,2   Inode: 131275      Links: 2
+Access: (0644/-rw-r--r--)  Uid: ( 1089/eltex-v28)   Gid: ( 1089/eltex-v28)
+Access: 2026-07-10 00:32:37.628643219 +0700
+Modify: 2026-07-10 00:32:53.620926476 +0700
+Change: 2026-07-10 00:48:56.466204019 +0700
+ Birth: 2026-07-10 00:32:37.628643219 +0700
+eltex-v28@eltex-2026-summer:~$ mv D1/D2/file.txt D1/file.txt
+eltex-v28@eltex-2026-summer:~$ cat symlink.txt
+cat: symlink.txt: No such file or directory
+eltex-v28@eltex-2026-summer:~$ cat hardlink.txt
+test
+eltex-v28@eltex-2026-summer:~$ rm -r D1/D2
+eltex-v28@eltex-2026-summer:~$ find / -type f -size +20M 2>/dev/null > "${USER}_part3_gt20M.log"
+eltex-v28@eltex-2026-summer:~$ wc -l eltex-v28_part3_gt20M.log
+29 eltex-v28_part3_gt20M.log
+eltex-v28@eltex-2026-summer:~$ find -type f -mmin -1440
+./report2.txt
+./.ssh/known_hosts
+./.lesshst
+./D1/file.txt
+./hardlink.txt
+./.bash_history
+./eltex-v28_part3_gt20M.log
+eltex-v28@eltex-2026-summer:~$ which find
+/usr/bin/find
+eltex-v28@eltex-2026-summer:~$ find $(which find)
+/usr/bin/find
+eltex-v28@eltex-2026-summer:~$ file $(which find)
+/usr/bin/find: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=5545a6c7162d325fbe5ffabcbfe4e5521b66ce70, for GNU/Linux 3.2.0, stripped
+eltex-v28@eltex-2026-summer:~$ file /boot/initrd.img*
+/boot/initrd.img-6.1.0-44-amd64: ASCII cpio archive (SVR4 with no CRC)
+/boot/initrd.img-6.1.0-50-amd64: ASCII cpio archive (SVR4 with no CRC)
