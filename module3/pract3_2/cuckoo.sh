@@ -1,5 +1,5 @@
 #!/bin/bash
-REPORT_FILE="cuckoo.log"
+REPORT_FILE="/root/eltex-v28-pract/module3/pract3_2/cuckoo.log"
 PIPE_FILE="/tmp/run/cuckoo.pid"
 mkdir -p /tmp/run
 

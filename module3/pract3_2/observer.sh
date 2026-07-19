@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_DIR="/root/pract3_2/"
+BASE_DIR="/root/eltex-v28-pract/module3/pract3_2/"
 CONF_FILE="${BASE_DIR}/observer.conf"
 LOG_FILE="${BASE_DIR}/observer.log"
 

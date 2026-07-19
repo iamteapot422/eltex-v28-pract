@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_NAME=$(basename "$0" .sh)
-LOG="REPORT_${SCRIPT_NAME}.log"
+LOG="/root/eltex-v28-pract/module3/pract3_2/REPORT_${SCRIPT_NAME}.log"
 PIPE_FILE="/tmp/run/cuckoo.pid"
 if [ $SCRIPT_NAME = "template_task" ]; then
 	echo "я бригадир, сам не работаю" >> $LOG
