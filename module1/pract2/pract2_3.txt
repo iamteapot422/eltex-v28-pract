@@ -1,0 +1,234 @@
+root@eltex-practice2-v28:~# apt install git
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+git is already the newest version (1:2.43.0-1ubuntu7.3).
+git set to manually installed.
+0 upgraded, 0 newly installed, 0 to remove and 81 not upgraded.
+root@eltex-practice2-v28:~# git config --global user.name "iamteapot422"
+root@eltex-practice2-v28:~# git config --global user.email "iamteapot42@gmail.com"
+root@eltex-practice2-v28:~# git config --global init.defaultBranch main
+root@eltex-practice2-v28:~# apt install git gh
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+git is already the newest version (1:2.43.0-1ubuntu7.3).
+The following NEW packages will be installed:
+  gh
+0 upgraded, 1 newly installed, 0 to remove and 81 not upgraded.
+Need to get 8,836 kB of archives.
+After this operation, 45.4 MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+Get:1 http://ru.archive.ubuntu.com/ubuntu noble-updates/universe amd64 gh amd64 2.45.0-1ubuntu0.3 [8,836 kB]
+Fetched 8,836 kB in 1s (9,313 kB/s)
+Selecting previously unselected package gh.
+(Reading database ... 125686 files and directories currently installed.)
+Preparing to unpack .../gh_2.45.0-1ubuntu0.3_amd64.deb ...
+Unpacking gh (2.45.0-1ubuntu0.3) ...
+Setting up gh (2.45.0-1ubuntu0.3) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+Scanning processes...
+Scanning linux images...
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this
+ host.
+root@eltex-practice2-v28:~# ssh-keygen -t ed25519 -f ~/.ssh/iamteapot422_git
+Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /root/.ssh/iamteapot422_git
+Your public key has been saved in /root/.ssh/iamteapot422_git.pub
+The key fingerprint is:
+SHA256:HbPOqEX7bJFF02hSQ6W1FDdcS/hjo5QsfToB5002kvs root@eltex-practice2-v28
+The key's randomart image is:
++--[ED25519 256]--+
+|           o++O++|
+|          ..=XoBo|
+|          o+B.X..|
+|         . =.O B |
+|        S ooo B o|
+|       . =o  + E |
+|        + o.  .  |
+|       o o.      |
+|      .  .o      |
++----[SHA256]-----+
+root@eltex-practice2-v28:~# gh auth login
+? What account do you want to log into? GitHub.com
+? What is your preferred protocol for Git operations on this host? HTTPS
+? Authenticate Git with your GitHub credentials? Yes
+? How would you like to authenticate GitHub CLI? Login with a web browser
+
+! First copy your one-time code: E942-6151
+Press Enter to open github.com in your browser... ^C
+root@eltex-practice2-v28:~# gh auth login
+? What account do you want to log into? GitHub.com
+? What is your preferred protocol for Git operations on this host? HTTPS
+? Authenticate Git with your GitHub credentials? Yes
+? How would you like to authenticate GitHub CLI? Login with a web browser
+
+! First copy your one-time code: 4DF3-19BB
+Press Enter to open github.com in your browser...
+! Failed opening a web browser at https://github.com/login/device
+  exec: "xdg-open,x-www-browser,www-browser,wslview": executable file not found in $PATH
+  Please try entering the URL in your browser manually
+✓ Authentication complete.
+- gh config set -h github.com git_protocol https
+✓ Configured git protocol
+! Authentication credentials saved in plain text
+✓ Logged in as iamteapot422
+
+root@eltex-practice2-v28:~# gh auth setup-git --hostname github.com
+root@eltex-practice2-v28:~# gh auth status
+github.com
+  ✓ Logged in to github.com account iamteapot422 (/root/.config/gh/hosts.yml)
+  - Active account: true
+  - Git operations protocol: https
+  - Token: gho_************************************
+  - Token scopes: 'gist', 'read:org', 'repo', 'workflow'
+root@eltex-practice2-v28:~# gh repo create --public eltex-v28
+GraphQL: Name already exists on this account (createRepository)
+root@eltex-practice2-v28:~# gh repo create --public eltex-v28-pract
+✓ Created repository iamteapot422/eltex-v28-pract on GitHub
+  https://github.com/iamteapot422/eltex-v28-pract
+root@eltex-practice2-v28:~# mkdir eltex-v28-pract
+root@eltex-practice2-v28:~# cd eltex-v28-pract/
+root@eltex-practice2-v28:~/eltex-v28-pract# echo "#Репозиторий для загрузки практических заданий" >> README.md
+root@eltex-practice2-v28:~/eltex-v28-pract# git init
+Initialized empty Git repository in /root/eltex-v28-pract/.git/
+root@eltex-practice2-v28:~/eltex-v28-pract# git add README.md
+root@eltex-practice2-v28:~/eltex-v28-pract# git commit -m "first commit"
+[main (root-commit) aa16ebc] first commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+root@eltex-practice2-v28:~/eltex-v28-pract# git branch -M main
+root@eltex-practice2-v28:~/eltex-v28-pract# git remote add origin https://github.com/iamteapot422/eltex-v28-pract.git
+root@eltex-practice2-v28:~/eltex-v28-pract# git status
+On branch main
+nothing to commit, working tree clean
+root@eltex-practice2-v28:~/eltex-v28-pract# git push -u origin main
+Enumerating objects: 3, done.
+Counting objects: 100% (3/3), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 279 bytes | 279.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+To https://github.com/iamteapot422/eltex-v28-pract.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+root@eltex-practice2-v28:~/eltex-v28-pract# mkdir -p module1/task1
+root@eltex-practice2-v28:~/eltex-v28-pract# mkdir module1/task2
+root@eltex-practice2-v28:~/eltex-v28-pract# mkdir module1/task3
+root@eltex-practice2-v28:~/eltex-v28-pract# git add .
+root@eltex-practice2-v28:~/eltex-v28-pract# git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+root@eltex-practice2-v28:~/eltex-v28-pract# git commit -m "add folders"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+root@eltex-practice2-v28:~/eltex-v28-pract# git push
+Everything up-to-date
+root@eltex-practice2-v28:~/eltex-v28-pract# touch module1/test.txt
+root@eltex-practice2-v28:~/eltex-v28-pract# git add .
+root@eltex-practice2-v28:~/eltex-v28-pract# git commit -m "Test commit"
+[main 8d25d5c] Test commit
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 module1/test.txt
+root@eltex-practice2-v28:~/eltex-v28-pract# git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (4/4), 319 bytes | 319.00 KiB/s, done.
+Total 4 (delta 0), reused 0 (delta 0), pack-reused 0
+To https://github.com/iamteapot422/eltex-v28-pract.git
+   aa16ebc..8d25d5c  main -> main
+root@eltex-practice2-v28:~/eltex-v28-pract# git fetch
+remote: Enumerating objects: 8, done.
+remote: Counting objects: 100% (8/8), done.
+remote: Compressing objects: 100% (6/6), done.
+remote: Total 6 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+Unpacking objects: 100% (6/6), 2.18 MiB | 3.78 MiB/s, done.
+From https://github.com/iamteapot422/eltex-v28-pract
+   8d25d5c..72adbae  main       -> origin/main
+root@eltex-practice2-v28:~/eltex-v28-pract# git pull
+Updating 8d25d5c..72adbae
+Fast-forward
+ module1/part1.pdf    | Bin 0 -> 2358726 bytes
+ module1/pract1_2.txt | 112 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ module1/pract1_3.txt |  63 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 175 insertions(+)
+ create mode 100644 module1/part1.pdf
+ create mode 100644 module1/pract1_2.txt
+ create mode 100644 module1/pract1_3.txt
+root@eltex-practice2-v28:~/eltex-v28-pract# mkdir ~/eltex-v28-pract_clone && cd ~/eltex-v28-pract_clone
+root@eltex-practice2-v28:~/eltex-v28-pract_clone# git clone https://github.com/iamteapot422/eltex-v28-pract.git .
+Cloning into '.'...
+remote: Enumerating objects: 13, done.
+remote: Counting objects: 100% (13/13), done.
+remote: Compressing objects: 100% (10/10), done.
+remote: Total 13 (delta 0), reused 7 (delta 0), pack-reused 0 (from 0)
+Receiving objects: 100% (13/13), 2.18 MiB | 4.04 MiB/s, done.
+root@eltex-practice2-v28:~/eltex-v28-pract_clone# cd ~/eltex-v28-pract/
+root@eltex-practice2-v28:~/eltex-v28-pract# mkdir module2
+root@eltex-practice2-v28:~/eltex-v28-pract# touch module2/test.txt
+root@eltex-practice2-v28:~/eltex-v28-pract# git add .
+root@eltex-practice2-v28:~/eltex-v28-pract# git commit -m "module2 test file"; git push
+[main 3c5084c] module2 test file
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 module2/test.txt
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (4/4), 346 bytes | 346.00 KiB/s, done.
+Total 4 (delta 0), reused 0 (delta 0), pack-reused 0
+To https://github.com/iamteapot422/eltex-v28-pract.git
+   72adbae..3c5084c  main -> main
+root@eltex-practice2-v28:~/eltex-v28-pract_clone# git log origin/main
+commit 72adbae1dfc5d1a79a2b7a1954d20a1f502fed79 (HEAD -> main, origin/main, origin/HEAD)
+Author: iamteapot <77565416+iamteapot422@users.noreply.github.com>
+Date:   Mon Jul 13 11:54:32 2026 +0700
+
+    Add reports for pract1
+
+commit 8d25d5cc29955ff79d38d979211b58f857df8b1a
+Author: iamteapot422 <iamteapot42@gmail.com>
+Date:   Mon Jul 13 04:47:00 2026 +0000
+
+    Test commit
+
+commit aa16ebc8af0a1fb7ba90fce670b1557967c76e92
+Author: iamteapot422 <iamteapot42@gmail.com>
+Date:   Mon Jul 13 04:35:49 2026 +0000
+
+    first commit
+root@eltex-practice2-v28:~/eltex-v28-pract_clone# git diff main origin/main
+root@eltex-practice2-v28:~/eltex-v28-pract_clone# cd ~/eltex-v28-pract/
+root@eltex-practice2-v28:~/eltex-v28-pract# git pull
+remote: Enumerating objects: 6, done.
+remote: Counting objects: 100% (6/6), done.
+remote: Compressing objects: 100% (4/4), done.
+remote: Total 4 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+Unpacking objects: 100% (4/4), 3.45 KiB | 1.72 MiB/s, done.
+From https://github.com/iamteapot422/eltex-v28-pract
+   3c5084c..06b0e13  main       -> origin/main
+Updating 3c5084c..06b0e13
+Fast-forward
+ module2/pract2_1.txt | 261 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 261 insertions(+)
+ create mode 100644 module2/pract2_1.txt
+root@eltex-practice2-v28:~/eltex-v28-pract#
+
+

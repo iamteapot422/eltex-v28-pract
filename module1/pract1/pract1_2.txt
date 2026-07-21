@@ -1,0 +1,112 @@
+eltex-v28@eltex-2026-summer:~$ date
+Fri Jul 10 12:14:32 AM +07 2026
+eltex-v28@eltex-2026-summer:~$ history | tail -3
+  170  2026-07-10 00:14:24 history
+  171  2026-07-10 00:14:32 date
+  172  2026-07-10 00:14:37 history | tail -3
+eltex-v28@eltex-2026-summer:~$ cat "$HISTFILE" | tail -3
+screen -l
+#1783603621
+bash --norc
+eltex-v28@eltex-2026-summer:~$ ls
+ls           lsblk        lscpu        lsinitramfs  lsirq        lslogins     lsmod        lsof         lsusb
+lsattr       lsb_release  lsfd         lsipc        lslocks      lsmem        lsns         lspci
+eltex-v28@eltex-2026-summer:~$ $HIST
+$HISTCMD         $HISTCONTROL     $HISTFILE        $HISTFILESIZE    $HISTSIZE        $HISTTIMEFORMAT
+eltex-v28@eltex-2026-summer:~$ echo $HISTFILESIZE
+2000
+eltex-v28@eltex-2026-summer:~$ ls -d .*
+.bash_history  .bash_logout  .bashrc  .config  .lesshst  .profile  .ssh  .viminfo
+eltex-v28@eltex-2026-summer:~$ export HISTTIMEFORMAT
+eltex-v28@eltex-2026-summer:~$ history | tail -3
+  175  2026-07-10 00:15:40 ls -d .*
+  176  2026-07-10 00:15:53 export HISTTIMEFORMAT
+  177  2026-07-10 00:16:01 history | tail -3
+eltex-v28@eltex-2026-summer:~$ date
+Fri Jul 10 12:16:06 AM +07 2026
+eltex-v28@eltex-2026-summer:~$ export HISTTIMEFORMAT='%F %T '
+eltex-v28@eltex-2026-summer:~$ cat "$HISTFILE" | tail -3
+screen -l
+#1783603621
+bash --norc
+eltex-v28@eltex-2026-summer:~$ export PROMPT_COMMAND='history -a'
+eltex-v28@eltex-2026-summer:~$ date
+Fri Jul 10 12:17:23 AM +07 2026
+eltex-v28@eltex-2026-summer:~$ cat "$HISTFILE" | tail -3
+export PROMPT_COMMAND='history -a'
+#1783617443
+date
+
+eltex-v28@eltex-2026-summer:~$ DATE=$(date +%F)
+eltex-v28@eltex-2026-summer:~$ echo "$DATE"
+2026-07-10
+eltex-v28@eltex-2026-summer:~$ TIME=$(date +%T)
+eltex-v28@eltex-2026-summer:~$ echo "$TIME"
+00:20:33
+eltex-v28@eltex-2026-summer:~$ DATE_TIME="$DATE $TIME"
+eltex-v28@eltex-2026-summer:~$ echo "$DATE_TIME"
+2026-07-10 00:20:33
+
+
+eltex-v28@eltex-2026-summer:~$ ls /bin /sbin | grep '[0-9]'
+...
+x86_64-linux-gnu-gcc-ranlib-12
+x86_64-linux-gnu-gcov
+x86_64-linux-gnu-gcov-12
+x86_64-linux-gnu-gcov-dump
+x86_64-linux-gnu-gcov-dump-12
+x86_64-linux-gnu-gcov-tool
+x86_64-linux-gnu-gcov-tool-12
+x86_64-linux-gnu-gold
+x86_64-linux-gnu-gp-archive
+x86_64-linux-gnu-gp-collect-app
+x86_64-linux-gnu-gp-display-html
+x86_64-linux-gnu-gp-display-src
+x86_64-linux-gnu-gp-display-text
+x86_64-linux-gnu-gprof
+x86_64-linux-gnu-gprofng
+x86_64-linux-gnu-ld
+x86_64-linux-gnu-ld.bfd
+x86_64-linux-gnu-ld.gold
+x86_64-linux-gnu-lto-dump
+x86_64-linux-gnu-lto-dump-12
+x86_64-linux-gnu-nm
+x86_64-linux-gnu-objcopy
+x86_64-linux-gnu-objdump
+x86_64-linux-gnu-ranlib
+x86_64-linux-gnu-readelf
+x86_64-linux-gnu-size
+x86_64-linux-gnu-strings
+x86_64-linux-gnu-strip
+dumpe2fs
+e2freefrag
+e2fsck
+e2image
+e2label
+e2mmpstatus
+e2scrub
+e2scrub_all
+e2undo
+e4crypt
+e4defrag
+fsck.ext2
+fsck.ext3
+fsck.ext4
+killall5
+mke2fs
+mkfs.ext2
+mkfs.ext3
+mkfs.ext4
+resize2fs
+tune2fs
+update-grub2
+
+eltex-v28@eltex-2026-summer:~$ PS1='\u@\h-$(date +%H:%M)> '
+eltex-v28@eltex-2026-summer-00:22> export PS1='\u@\h-$(date +%H:%M)> '
+eltex-v28@eltex-2026-summer-00:23> bash --norc
+eltex-v28@eltex-2026-summer-00:23>
+eltex-v28@eltex-2026-summer-00:23> bash --norc
+eltex-v28@eltex-2026-summer-00:23> mkdir 1_2_16
+eltex-v28@eltex-2026-summer-00:23> mkdir ./$(date +%Y)-{01..12}
+eltex-v28@eltex-2026-summer-00:24> ls
+1_2_16  2026-01  2026-02  2026-03  2026-04  2026-05  2026-06  2026-07  2026-08  2026-09  2026-10  2026-11  2026-12  first  first.pub  part1.zip  report2.txt  report_part1.txt
