@@ -4,7 +4,7 @@
 
 #ifndef PRACT4_2_PRIORITYQUEUE_H
 #define PRACT4_2_PRIORITYQUEUE_H
-typedef struct {
+typedef struct PriorityQueueEntry {
     int priority;
     struct PriorityQueueEntry *next;
     char* data;
@@ -16,6 +16,7 @@ typedef struct {
 PriorityQueue createPriorityQueue();
 PriorityQueueEntry* insert(PriorityQueue* pq, int priority, char* data);
 int remove_entry(PriorityQueue* pq, int priority, char* data);
+PriorityQueueEntry* popEntry(PriorityQueue* pq, int priority, char* data);
 PriorityQueueEntry* getFirst(PriorityQueue* pq);
 PriorityQueueEntry* getWithPriority(PriorityQueue* pq, int priority);
 PriorityQueueEntry* getWithPriorityAtLeast(PriorityQueue* pq, int priority);
