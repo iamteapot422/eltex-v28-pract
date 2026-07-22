@@ -57,6 +57,7 @@ int main(void) {
     add_operation(&operations, '-', minus);
     add_operation(&operations, '*', multiply);
     add_operation(&operations, '/', divide);
+    add_operation(&operations, '<', minus);
     scanf("%lf %c %lf", &a, &op, &b);
     printf("%g", linear_search(&operations, op)->operation(a, b));
     return 0;

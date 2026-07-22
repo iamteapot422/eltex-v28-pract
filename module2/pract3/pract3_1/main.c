@@ -78,7 +78,7 @@ void displaymaskwithnewline(int mask, bool newLine)
     }
     printf(" ");
     for (int i = 0; i < 8; i++) {
-        printf("%d", (mask >> i) % 2);
+        printf("%d", (mask >> (8 - i)) % 2);
     }
     printf(" ");
     printf("%d", mask);
@@ -200,7 +200,6 @@ int main() {
                 chosenFile = &all_masks[i];
             }
         }
-        displaymask(chosenFile->mask);
         int mask = chosenFile->mask;
         if (isnumber(cmd))
         {
