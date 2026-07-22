@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "phonebook.c"
+#include "phonebook.h"
 
 void test_stringlist_operations(void) {
     StringList sl;
@@ -85,7 +85,7 @@ void test_contactlist_operations(void) {
     printf("[OK] test_contactlist_operations passed.\n");
 }
 
-int main(void) {
+int run_tests() {
     printf("Tests are running...\n");
     
     test_stringlist_operations();
