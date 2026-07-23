@@ -5,4 +5,7 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(pract4_2 main.c
         priorityqueue.h
-        priorityqueue.c)
+        priorityqueue.c
+        tests.c
+        tests.c
+        tests.h)

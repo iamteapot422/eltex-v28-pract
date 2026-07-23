@@ -42,7 +42,6 @@ PriorityQueueEntry* insert(PriorityQueue* pq, int priority, char* data) {
         prev = &(*prev)->next;
     }
     pq->size++;
-    printPriorityQueue(pq);
     return entry;
 }
 int remove_entry(PriorityQueue* pq, int priority, char* data) {
@@ -68,11 +67,9 @@ int remove_entry(PriorityQueue* pq, int priority, char* data) {
         *entry = entryToRemove->next;
         free(entryToRemove);
         pq->size--;
-        printPriorityQueue(pq);
         return 1;
     }
     else {
-        printPriorityQueue(pq);
         return 0;
     }
 }
@@ -98,11 +95,9 @@ PriorityQueueEntry* popEntry(PriorityQueue* pq, int priority, char* data) {
         PriorityQueueEntry* entryToRemove = *entry;
         *entry = entryToRemove->next;
         pq->size--;
-        printPriorityQueue(pq);
         return entryToRemove;
     }
     else {
-        printPriorityQueue(pq);
         return NULL;
     }
 }
