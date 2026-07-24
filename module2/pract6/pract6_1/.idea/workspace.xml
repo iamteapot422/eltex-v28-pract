@@ -8,9 +8,9 @@
     <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
     <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
   </component>
-  <component name="CMakePresetLoader"><![CDATA[{
-  "useNewFormat": true
-}]]></component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
   <component name="CMakeProjectFlavorService">
     <option name="flavorId" value="CMakePlainProjectFlavor" />
   </component>
@@ -28,7 +28,34 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cc967d38-aa9e-46f1-99e7-9a83684966f6" name="Changes" comment="" />
+    <list default="true" id="cc967d38-aa9e-46f1-99e7-9a83684966f6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/phonebook/library.c" beforeDir="false" afterPath="$PROJECT_DIR$/libs/phonebook/source/library.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/phonebook/phonebook.c" beforeDir="false" afterPath="$PROJECT_DIR$/libs/phonebook/source/phonebook.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/phonebook/phonebook.h" beforeDir="false" afterPath="$PROJECT_DIR$/libs/phonebook/source/phonebook.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/phonebook/pract6_1lib.h" beforeDir="false" afterPath="$PROJECT_DIR$/libs/phonebook/source/pract6_1lib.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/phonebook/stringlist.c" beforeDir="false" afterPath="$PROJECT_DIR$/libs/phonebook/source/stringlist.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/phonebook/stringlist.h" beforeDir="false" afterPath="$PROJECT_DIR$/libs/phonebook/source/stringlist.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/phonebook/tests.c" beforeDir="false" afterPath="$PROJECT_DIR$/libs/phonebook/source/tests.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/phonebook/tests.h" beforeDir="false" afterPath="$PROJECT_DIR$/libs/phonebook/source/tests.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/.idea/editor.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/.idea/pract6_1lib.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/library.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/library.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/phonebook.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/phonebook.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/stringlist.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/stringlist.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/tests.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pract6_1lib/tests.h" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -53,10 +80,10 @@
     <option name="minorVersion" value="2" />
     <option name="productBranch" value="Classic" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5,
-  "fromUser": false
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3GugaNQEHQCrWlDcA7kwUCWzL3I" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -78,10 +105,12 @@
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/iamteapot/eltex-v28-pract/module2/pract4/pract6_1",
+    "last_opened_file_path": "C:/Users/iamteapot/eltex-v28-pract/module2/pract6/pract6_1",
     "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.jshint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.jshint": "",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "org.rust.first.attach.projects": "true"
@@ -91,11 +120,14 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\iamteapot\eltex-v28-pract\module2\pract4\pract6_1" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\iamteapot\eltex-v28-pract\module2\pract6\pract6_1\libs\phonebook\source" />
+    </key>
   </component>
   <component name="RunManager">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
     <configuration name="pract6_1" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pract6_1" TARGET_NAME="pract6_1" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pract6_1" RUN_TARGET_NAME="pract6_1">

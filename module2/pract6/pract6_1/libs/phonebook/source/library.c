@@ -1,4 +1,4 @@
-#include "library.h"
+#include "pract6_1lib.h"
 
 #include <stdio.h>
 #include <stdlib.h>

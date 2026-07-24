@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "libpract6_2lib.h"
+#include "library.h"
 
 int main(void) {
     start();
