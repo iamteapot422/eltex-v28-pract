@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "libpract6_1lib.h"
+#include "libs/phonebook/pract6_1lib.h"
 
 int main(void) {
     start();

@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "stringlist.h"
-#include "phonebook.h"
+#include "../stringlist.h"
+#include "../phonebook.h"
 
 #define NAME_LEN   50
 #define FIELD_LEN  100
@@ -368,25 +368,10 @@ static void list_contacts_helper(AVLNode* root, int* index) {
     list_contacts_helper(root->right, index);
 }
 
-static void print_avl_tree(AVLNode* root, int level) {
-    if (root == NULL)
-        return;
-
-    print_avl_tree(root->right, level + 1);
-
-    for (int i = 0; i < level; i++)
-        printf("    ");
-
-    printf("[%s]\n", root->data->first_name);
-
-    print_avl_tree(root->left, level + 1);
-}
-
 void list_contacts(const ContactList* list) {
     printf("\nContact list (%d)\n", list->count);
     int index = 0;
     list_contacts_helper(list->root, &index);
-    print_avl_tree(list->root, 0);
 }
 
 static void find_contacts_helper(AVLNode* root, const char* query, bool* found, int* index) {
