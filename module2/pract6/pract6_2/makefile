@@ -1,35 +1,40 @@
-CC = "C:\Program Files\JetBrains\CLion 2026.2\bin\mingw\bin\gcc.exe"
-AR = "C:\Program Files\JetBrains\CLion 2026.2\bin\mingw\bin\ar.exe"
+CC = gcc
+AR = ar
 LIB_DIR = libs/phonebook
 LIB_SOURCE_DIR = $(LIB_DIR)/source
 LIB_OBJ_DIR = $(LIB_DIR)/objects
-LDFLAGS = -L${LIB_DIR}
-CFLAGS = -Wall -Wextra -std=c11 -Ilibs/phonebook/source -fPIC
+LDFLAGS = -L${LIB_DIR} -Wl,-rpath,$(LIB_DIR)
+CFLAGS = -Wall -Wextra -std=c11 -I$(LIB_SOURCE_DIR) -fPIC
 
-DLL = libpract6_2lib.dll
-IMPLIB = libpract6_2lib.dll.a
+SO = $(LIB_DIR)/libpract6_2lib.so
 
 OBJ = $(LIB_OBJ_DIR)/library.o \
 	$(LIB_OBJ_DIR)/phonebook.o \
 	$(LIB_OBJ_DIR)/stringlist.o \
 	$(LIB_OBJ_DIR)/tests.o
 
-TARGET = main.exe
+TARGET = main
 MAIN_OBJ = main.o
 
 all: $(TARGET)
 
-$(DLL): $(OBJ)
-	$(CC) -shared -o $(DLL) $(OBJ) -Wl,--out-implib,$(IMPLIB)
+$(SO): $(OBJ)
+	$(CC) -shared -o $(SO) $(OBJ)
 
-$(TARGET): $(MAIN_OBJ) $(DLL)
+$(TARGET): $(MAIN_OBJ) $(SO)
 	$(CC) $(MAIN_OBJ) $(LDFLAGS) -lpract6_2lib -o $(TARGET)
 
 $(MAIN_OBJ): main.c $(LIB_SOURCE_DIR)/library.h
 	$(CC) $(CFLAGS) -c main.c
 
-$(LIB_OBJ_DIR)/%.o: $(LIB_SOURCE_DIR)/%.c
+$(LIB_OBJ_DIR)/%.o: $(LIB_SOURCE_DIR)/%.c | $(LIB_OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(LIB_OBJ_DIR):
+	mkdir -p $(LIB_OBJ_DIR)
+
 clean:
-	del /s *.o *.a *.exe *.dll
+	find . -name "*.o" -type f -delete
+	find . -name "*.so" -type f -delete
+	find . -name "*.a" -type f -delete
+	rm $(TARGET)

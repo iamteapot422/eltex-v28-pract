@@ -1,5 +1,5 @@
-CC = "C:\Program Files\JetBrains\CLion 2026.2\bin\mingw\bin\gcc.exe"
-AR = "C:\Program Files\JetBrains\CLion 2026.2\bin\mingw\bin\ar.exe"
+CC = gcc
+AR = ar
 LIB_DIR = libs/phonebook
 LIB_SOURCE_DIR = $(LIB_DIR)/source
 LIB_OBJ_DIR = $(LIB_DIR)/objects
@@ -12,7 +12,7 @@ OBJ = $(LIB_OBJ_DIR)/library.o \
 	$(LIB_OBJ_DIR)/stringlist.o \
 	$(LIB_OBJ_DIR)/tests.o
 
-TARGET = main.exe
+TARGET = main
 MAIN_OBJ = main.o
 
 all: $(TARGET)
@@ -26,8 +26,12 @@ $(TARGET): $(MAIN_OBJ) $(LIB)
 $(MAIN_OBJ): main.c $(LIB_SOURCE_DIR)/pract6_1lib.h
 	$(CC) $(CFLAGS) -c main.c
 
-$(LIB_OBJ_DIR)/%.o: $(LIB_SOURCE_DIR)/%.c
+$(LIB_OBJ_DIR)/%.o: $(LIB_SOURCE_DIR)/%.c | $(LIB_OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(LIB_OBJ_DIR):
+	mkdir -p $(LIB_OBJ_DIR)
+
 clean:
-	del /s *.o *.a *.exe
+	find . -name "*.a" -type f -delete
+	rm -f $(TARGET)

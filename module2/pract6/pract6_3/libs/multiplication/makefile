@@ -1,13 +1,12 @@
-CC = "C:\Program Files\JetBrains\CLion 2026.2\bin\mingw\bin\gcc.exe"
-AR = "C:\Program Files\JetBrains\CLion 2026.2\bin\mingw\bin\ar.exe"
+CC = gcc
+AR = ar
 CFLAGS = -Wall -Wextra -std=c11 -fPIC
 
 NAME = multiplication
-DLL = lib$(NAME).dll
-IMPLIB = $(DLL).a
+SO = lib$(NAME).so
 OBJ = $(NAME).o
 SOURCE = $(NAME).c
 
-$(DLL): $(OBJ)
+$(SO): $(OBJ)
 	$(CC) $(CFLAGS) -c $(SOURCE)
-	$(CC) -shared -o $(DLL) $(OBJ) -Wl,--out-implib,$(IMPLIB)
+	$(CC) -shared -o $(SO) $(OBJ)

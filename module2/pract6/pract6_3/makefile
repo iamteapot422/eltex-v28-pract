@@ -1,5 +1,5 @@
-CC = "C:\Program Files\JetBrains\CLion 2026.2\bin\mingw\bin\gcc.exe"
-AR = "C:\Program Files\JetBrains\CLion 2026.2\bin\mingw\bin\ar.exe"
+CC = gcc
+AR = ar
 CFLAGS = -Wall -Wextra
 LIBS_DIR = libs
 
@@ -8,17 +8,19 @@ LIB_NAMES = $(notdir $(wildcard $(LIBS_DIR)/*))
 INCLUDES = $(foreach l,$(LIB_NAMES),-I$(LIBS_DIR)/$(l))
 LIBPATHS = $(foreach l,$(LIB_NAMES),-L$(LIBS_DIR)/$(l))
 LINKLIBS = $(foreach l,$(LIB_NAMES),-l$(l))
+RPATH = $(foreach l,$(LIB_NAMES),-Wl,-rpath,$(CURDIR)/$(LIBS_DIR)/$(l))
 
 .PHONY: libs
 
-all: libs main.exe
+all: libs main
 
 libs:
-	for %%d in ($(LIB_NAMES)) do $(MAKE) -C $(LIBS_DIR)/%%d
+	for d in $(LIB_NAMES); do $(MAKE) -C $(LIBS_DIR)/$$d; done
 
-main.exe: main.c libs
-	$(CC) $(CFLAGS) -o main.exe main.c $(INCLUDES) $(LIBPATHS) $(LINKLIBS)
-	for %%d in ($(LIB_NAMES)) do copy $(LIBS_DIR)\%%d\lib%%d.dll .
+main: main.c 
+	$(CC) $(CFLAGS) -o $@ $< $(INCLUDES) $(LIBPATHS) $(LINKLIBS) $(RPATH)
 
 clean:
-	del /s *.o *.a *.exe *.dll
+	find . -name "*.o" -delete
+	find . -name "*.so" -delete
+	rm -f main
