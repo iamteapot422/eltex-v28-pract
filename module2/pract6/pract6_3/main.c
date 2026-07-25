@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "addition.h"
-#include "multiplication.h"
-#include "substraction.h"
-#include "division.h"
+#include <dlfcn.h>
+#include <dirent.h>
+#include <string.h>
 
 typedef struct {
     char key;
@@ -23,7 +21,7 @@ operation_item* linear_search(const operation_array* const array, char key) {
             return &array->operations[i];
         }
     }
-    return &array->operations[0];
+    return NULL;
 }
 void add_operation(operation_array* array, char key, double (*operation)(double, double)) {
     if (array->count >= array->capacity) {
@@ -43,15 +41,60 @@ void add_operation(operation_array* array, char key, double (*operation)(double,
     array->count++;
 }
 int main(void) {
-    double a, b = 0;
-    char op = '+';
-    operation_array operations = {0};
-    add_operation(&operations, '+', plus);
-    add_operation(&operations, '-', minus);
-    add_operation(&operations, '*', multiply);
-    add_operation(&operations, '/', divide);
-    add_operation(&operations, '<', minus);
-    scanf("%lf %c %lf", &a, &op, &b);
-    printf("%g", linear_search(&operations, op)->operation(a, b));
-    return 0;
+    char* libdir = "./libs";
+    
+    while (true)
+    {
+        DIR* dir = opendir(libdir);
+        struct dirent* entry;
+        void *handle;
+        void **handles = malloc(sizeof(void**));
+        int handle_count = 0;
+        double (*operation)(double, double);
+        operation_array operations = {0};
+        char *error;
+        printf("Available operations: ");
+        while ((entry = readdir(dir)) != NULL)
+        {
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+                continue;
+            
+            char filepath[1024];
+            snprintf(filepath, sizeof(filepath), "%s/%s/lib%s.so", libdir, entry->d_name, entry->d_name);
+            handle = dlopen(filepath, RTLD_LAZY);
+            if (!handle) {
+                continue;
+            }
+            handle_count++;
+            handles = (void**)realloc(handles, handle_count * sizeof(void**));
+            handles[handle_count - 1] = handle;
+            
+            operation = dlsym(handle, entry->d_name);
+            char* operationsymb = dlsym(handle, "operation");
+            
+            printf("%s", operationsymb);
+            add_operation(&operations, *operationsymb, operation);
+        }
+        printf("\n");
+        double a, b = 0;
+        char op;
+        scanf("%lf %c %lf", &a, &op, &b);
+        
+        operation_item* item = linear_search(&operations, op);
+        if (item)
+        {
+            printf("%g\n", item->operation(a, b));
+        }
+        else
+        {
+            printf("Operation not found\n");
+        }
+        for (int i = 0; i < handle_count; i++)
+        {
+          dlclose(handles[i]);
+        }
+        
+        free(operations.operations);
+        free(handles);
+    }
 }

@@ -1,6 +1,6 @@
 CC = gcc
 AR = ar
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -rdynamic
 LIBS_DIR = libs
 
 LIB_NAMES = $(notdir $(wildcard $(LIBS_DIR)/*))
@@ -18,7 +18,8 @@ libs:
 	for d in $(LIB_NAMES); do $(MAKE) -C $(LIBS_DIR)/$$d; done
 
 main: main.c 
-	$(CC) $(CFLAGS) -o $@ $< $(INCLUDES) $(LIBPATHS) $(LINKLIBS) $(RPATH)
+	#$(CC) $(CFLAGS) -o $@ $< $(INCLUDES) $(LIBPATHS) $(LINKLIBS) $(RPATH)
+	$(CC) $(CFLAGS) -o $@ $< -ldl
 
 clean:
 	find . -name "*.o" -delete
