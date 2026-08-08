@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/wait.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -29,14 +29,31 @@ typedef struct
     char topic[50];
 } subscription;
 
-msgbuf* create_message(long mtype, int action, int pid, char topic[50], char payload[200])
+static volatile sig_atomic_t g_stop = 0;
+
+void handle_stop_signal(int sig)
+{
+    g_stop = 1;
+}
+
+void install_signal_handlers()
+{
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = handle_stop_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+}
+
+msgbuf* create_message(long mtype, int action, int pid, const char* topic, const char* payload)
 {
     msgbuf* msg = malloc(sizeof(msgbuf));
     msg->mtype = mtype;
     msg->action = action;
     msg->pid = pid;
     strncpy(msg->topic, topic, 50);
-    char* mtext = "test payload";
     strncpy(msg->payload, payload, 200);
     return msg;
 }
@@ -48,72 +65,202 @@ int get_msqid()
     return msqid;
 }
 
+void add_subscription(subscription** subs, int* nsubs, int pid, const char* topic)
+{
+    (*nsubs)++;
+    *subs = realloc(*subs, sizeof(subscription) * (*nsubs));
+    (*subs)[*nsubs - 1].pid = pid;
+    strncpy((*subs)[*nsubs - 1].topic, topic, 50);
+}
+
+void remove_subscription(subscription* subs, int* nsubs, int pid, const char* topic)
+{
+    int found = -1;
+    for (int i = 0; i < *nsubs; i++)
+    {
+        if ((subs[i].pid == pid) && (strcmp(subs[i].topic, topic) == 0))
+        {
+            found = i;
+            break;
+        }
+    }
+    if (found < 0) return;
+    for (int i = found + 1; i < *nsubs; i++)
+    {
+        subs[i - 1] = subs[i];
+    }
+    (*nsubs)--;
+}
+
+ssize_t read_string(int fd, char* buf, size_t maxlen)
+{
+    size_t i = 0;
+    while (i < maxlen - 1)
+    {
+        ssize_t r = read(fd, buf + i, 1);
+        if (r <= 0) return r;
+        if (buf[i] == '\0') return i;
+        i++;
+    }
+    buf[i] = '\0';
+    return i;
+}
+
 void broker()
 {
     int msqid = get_msqid();
     int nsubs = 0;
-    subscription* subs;
-    while (1)
+    subscription* subs = NULL;
+
+    printf("broker: started, msqid=%d\n", msqid);
+    fflush(stdout);
+
+    while (!g_stop)
     {
         msgbuf message;
-        msgrcv(msqid, &message, 512, 1, 0);
+        ssize_t r = msgrcv(msqid, &message, sizeof(msgbuf) - sizeof(long), 1, 0);
+        if (r < 0)
+        {
+            if (errno == EINTR) continue;
+            break;
+        }
+
         if (message.action == SUBSCRIBE)
         {
-            char fifo[512];
-            snprintf(fifo, "%d", message.pid);
-            nsubs++;
-            subs = realloc(subs, sizeof(subscription) * nsubs);
-            subscription* sub = malloc(sizeof(subscription));
-            sub->pid = message.pid;
-            strncpy(sub->topic, message.topic, 50);
-            subs[nsubs - 1] = *sub;
-            printf("subscribed %d %s\n", message.pid, message.payload);
+            add_subscription(&subs, &nsubs, message.pid, message.topic);
+            printf("broker: subscribed %d to \"%s\"\n", message.pid, message.topic);
+            fflush(stdout);
         }
         else if (message.action == UNSUBSCRIBE)
         {
-            int found = 0;
+            remove_subscription(subs, &nsubs, message.pid, message.topic);
+            printf("broker: unsubscribed %d from \"%s\"\n", message.pid, message.topic);
+            fflush(stdout);
+        }
+        else if (message.action == SEND)
+        {
             for (int i = 0; i < nsubs; i++)
             {
-                if ((subs[i].pid == message.pid) && (strcmp(subs[i].topic, message.topic) == 0))
+                if (strcmp(subs[i].topic, message.topic) == 0)
                 {
-                    found = i;
-                    break;
+                    char fifo[32];
+                    snprintf(fifo, 32, "%d_inbox", subs[i].pid);
+                    int pipe_out = open(fifo, O_WRONLY);
+                    if (pipe_out < 0) continue;
+                    write(pipe_out, message.payload, strlen(message.payload) + 1);
+                    close(pipe_out);
                 }
             }
-            for (int i = found + 1; i < nsubs; i++)
-            {
-                subs[i - 1] = subs[i];
-            }
-
-            nsubs--;
-            printf("unsubscribed %d \n", nsubs);
-            break;
         }
     }
+
     msgctl(msqid, IPC_RMID, NULL);
+    free(subs);
+    printf("broker: stopped\n");
 }
 
-void provider()
+void provider(const char* topic)
 {
     int msqid = get_msqid();
-    msgbuf* msg; 
-    msg = create_message(1, SUBSCRIBE, getpid(), "test topic", "test payload");
-    msgsnd(msqid, msg, sizeof(msgbuf) - sizeof(long), 0);
-    msg = create_message(1, UNSUBSCRIBE, getpid(), "test topic", "test payload");
-    msgsnd(msqid, msg, sizeof(msgbuf) - sizeof(long), 0);
+    int counter = 0;
+
+    printf("provider: sending to \"%s\", pid=%d\n", topic, getpid());
+    fflush(stdout);
+
+    while (!g_stop)
+    {
+        char payload[200];
+        snprintf(payload, sizeof(payload), "message #%d from %d", counter++, getpid());
+
+        msgbuf* msg = create_message(1, SEND, getpid(), topic, payload);
+        msgsnd(msqid, msg, sizeof(msgbuf) - sizeof(long), 0);
+        free(msg);
+
+        printf("provider: sent \"%s\" to \"%s\"\n", payload, topic);
+        fflush(stdout);
+
+        sleep(1);
+    }
+
+    printf("provider: stopped\n");
+}
+
+void subscriber(char** topics, int ntopics)
+{
+    char fifo[32];
+    snprintf(fifo, sizeof(fifo), "%d_inbox", getpid());
+    if (mkfifo(fifo, 0666) < 0 && errno != EEXIST)
+    {
+        printf("Error: can't create fifo\n");
+        return;
+    }
+
+    int fd = open(fifo, O_RDWR);
+    int msqid = get_msqid();
+
+    for (int i = 0; i < ntopics; i++)
+    {
+        msgbuf* msg = create_message(1, SUBSCRIBE, getpid(), topics[i], "");
+        msgsnd(msqid, msg, sizeof(msgbuf) - sizeof(long), 0);
+        free(msg);
+        printf("subscriber: subscribed to \"%s\"\n", topics[i]);
+    }
+    fflush(stdout);
+
+    while (!g_stop)
+    {
+        char buf[200];
+        ssize_t r = read_string(fd, buf, sizeof(buf));
+        if (r < 0)
+        {
+            if (errno == EINTR) continue;
+            break;
+        }
+        if (r == 0) break;
+
+        printf("subscriber [%d]: %s\n", getpid(), buf);
+        fflush(stdout);
+    }
+
+    for (int i = 0; i < ntopics; i++)
+    {
+        msgbuf* msg = create_message(1, UNSUBSCRIBE, getpid(), topics[i], "");
+        msgsnd(msqid, msg, sizeof(msgbuf) - sizeof(long), 0);
+        free(msg);
+    }
+
+    close(fd);
+    unlink(fifo);
+    printf("subscriber: stopped\n");
 }
 
 int main(int argc, char* argv[])
 {
-    int pid = fork();
-    if (pid == 0)
+    install_signal_handlers();
+
+    if (strcmp(argv[1], "-b") == 0)
     {
         broker();
     }
-    else
+    else if (strcmp(argv[1], "-p") == 0)
     {
-        provider();
+        if (argc < 3)
+        {
+            printf("too little arguments");
+            return 1;
+        }
+        provider(argv[2]);
     }
+    else if (strcmp(argv[1], "-s") == 0)
+    {
+        if (argc < 3)
+        {
+            printf("too little arguments");
+            return 1;
+        }
+        subscriber(argv + 2, argc - 2);
+    }
+
 
     return 0;
 }
