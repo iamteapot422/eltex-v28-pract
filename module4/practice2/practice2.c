@@ -38,11 +38,7 @@ void handle_stop_signal(int sig)
 
 void install_signal_handlers()
 {
-    struct sigaction sa;
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = handle_stop_signal;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
+    struct sigaction sa = { .sa_handler = handle_stop_signal };
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
 }
@@ -118,10 +114,9 @@ void broker()
     while (!g_stop)
     {
         msgbuf message;
-        ssize_t r = msgrcv(msqid, &message, sizeof(msgbuf) - sizeof(long), 1, 0);
+        int r = msgrcv(msqid, &message, sizeof(msgbuf) - sizeof(long), 1, 0);
         if (r < 0)
         {
-            if (errno == EINTR) continue;
             break;
         }
 
@@ -141,15 +136,11 @@ void broker()
         {
             for (int i = 0; i < nsubs; i++)
             {
-                if (strcmp(subs[i].topic, message.topic) == 0)
-                {
-                    char fifo[32];
-                    snprintf(fifo, 32, "%d_inbox", subs[i].pid);
-                    int pipe_out = open(fifo, O_WRONLY);
-                    if (pipe_out < 0) continue;
-                    write(pipe_out, message.payload, strlen(message.payload) + 1);
-                    close(pipe_out);
-                }
+                if (strcmp(subs[i].topic, message.topic) != 0) continue;
+
+                msgbuf* msg = create_message(subs[i].pid, SEND, getpid(), message.topic, message.payload);
+                msgsnd(msqid, msg, sizeof(msgbuf) - sizeof(long), 0);
+                free(msg);
             }
         }
     }
@@ -173,8 +164,13 @@ void provider(const char* topic)
         snprintf(payload, sizeof(payload), "message #%d from %d", counter++, getpid());
 
         msgbuf* msg = create_message(1, SEND, getpid(), topic, payload);
-        msgsnd(msqid, msg, sizeof(msgbuf) - sizeof(long), 0);
+        int r = msgsnd(msqid, msg, sizeof(msgbuf) - sizeof(long), 0);
         free(msg);
+
+        if (r < 0)
+        {
+            break;
+        }
 
         printf("provider: sent \"%s\" to \"%s\"\n", payload, topic);
         fflush(stdout);
@@ -187,15 +183,6 @@ void provider(const char* topic)
 
 void subscriber(char** topics, int ntopics)
 {
-    char fifo[32];
-    snprintf(fifo, sizeof(fifo), "%d_inbox", getpid());
-    if (mkfifo(fifo, 0666) < 0 && errno != EEXIST)
-    {
-        printf("Error: can't create fifo\n");
-        return;
-    }
-
-    int fd = open(fifo, O_RDWR);
     int msqid = get_msqid();
 
     for (int i = 0; i < ntopics; i++)
@@ -209,16 +196,14 @@ void subscriber(char** topics, int ntopics)
 
     while (!g_stop)
     {
-        char buf[200];
-        ssize_t r = read_string(fd, buf, sizeof(buf));
+        msgbuf message;
+        int r = msgrcv(msqid, &message, sizeof(msgbuf) - sizeof(long), getpid(), 0);
         if (r < 0)
         {
-            if (errno == EINTR) continue;
             break;
         }
-        if (r == 0) break;
 
-        printf("subscriber [%d]: %s\n", getpid(), buf);
+        printf("subscriber [%d] %s: %s\n", getpid(), message.topic, message.payload);
         fflush(stdout);
     }
 
@@ -229,8 +214,6 @@ void subscriber(char** topics, int ntopics)
         free(msg);
     }
 
-    close(fd);
-    unlink(fifo);
     printf("subscriber: stopped\n");
 }
 
