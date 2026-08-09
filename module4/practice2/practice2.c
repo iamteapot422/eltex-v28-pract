@@ -29,7 +29,7 @@ typedef struct
     char topic[50];
 } subscription;
 
-static volatile sig_atomic_t g_stop = 0;
+int g_stop = 0;
 
 void handle_stop_signal(int sig)
 {
