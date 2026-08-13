@@ -10,9 +10,10 @@
 #include <arpa/inet.h>
 
 #define PORT 12345
-#define BROADCAST_ADDR "255.255.255.255"
+#define DEFAULT_BROADCAST_ADDR "255.255.255.255"
 
 static volatile sig_atomic_t g_stop = 0;
+static const char* g_broadcast_addr = DEFAULT_BROADCAST_ADDR;
 
 void handle_stop_signal(int sig)
 {
@@ -41,7 +42,7 @@ int create_socket()
 void send_message(int fd, const char* msg)
 {
     struct sockaddr_in addr = { .sin_family = AF_INET, .sin_port = htons(PORT) };
-    inet_pton(AF_INET, BROADCAST_ADDR, &addr.sin_addr);
+    inet_pton(AF_INET, g_broadcast_addr, &addr.sin_addr);
     sendto(fd, msg, strlen(msg) + 1, 0, (struct sockaddr*)&addr, sizeof(addr));
 }
 
@@ -49,9 +50,11 @@ int main(int argc, char* argv[])
 {
     if (argc < 2)
     {
-        printf("usage: %s <nickname>\n", argv[0]);
+        printf("usage: %s <nickname> [broadcast address]\n", argv[0]);
         return 1;
     }
+
+    if (argc >= 3) g_broadcast_addr = argv[2];
 
     install_signal_handlers();
 
