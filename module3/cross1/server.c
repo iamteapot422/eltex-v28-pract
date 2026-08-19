@@ -1,137 +1,93 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
-#include <signal.h>
-#include <time.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
-#include <netinet/udp.h>
-#include <netinet/if_ether.h>
-#include <net/if.h>
 #include <arpa/inet.h>
-#include <linux/if_packet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
+#define PORT 9000
+#define MAX_CLIENTS 64
 
-#define PORT 12345
-
-static volatile int g_stop = 0;
-
-void onsignal(int sig)
+typedef struct
 {
-    g_stop = 1;
-}
+    struct in_addr ip;
+    uint16_t port;
+    int counter;
+} client_entry;
 
-unsigned short checksum(void* data, int len)
+client_entry clients[MAX_CLIENTS];
+int nclients = 0;
+
+int find_client(struct sockaddr_in* addr)
 {
-    unsigned short* buf = data;
-    unsigned int sum = 0;
-    for (; len > 1; len -= 2) sum += *buf++;
-    if (len == 1) sum += *(unsigned char*)buf;
-    while (sum >> 16) sum = (sum & 0xFFFF) + (sum >> 16);
-    return (unsigned short)~sum;
-}
-
-struct pseudo_header
-{
-    uint32_t src;
-    uint32_t dst;
-    uint8_t zero;
-    uint8_t protocol;
-    uint16_t len;
-};
-
-int build_packet(char* buf, uint32_t src_ip, uint16_t src_port, uint32_t dst_ip, uint16_t dst_port, const char* payload, int payload_len)
-{
-    struct iphdr* ip = (struct iphdr*)buf;
-    struct udphdr* udp = (struct udphdr*)(buf + sizeof(struct iphdr));
-    char* data = buf + sizeof(struct iphdr) + sizeof(struct udphdr);
-    memcpy(data, payload, payload_len);
-
-    udp->source = htons(src_port);
-    udp->dest = htons(dst_port);
-    udp->len = htons(sizeof(struct udphdr) + payload_len);
-    udp->check = 0;
-
-    struct pseudo_header ph = { src_ip, dst_ip, 0, IPPROTO_UDP, udp->len };
-    int plen = sizeof(ph) + sizeof(struct udphdr) + payload_len;
-    char* pbuf = malloc(plen);
-    memcpy(pbuf, &ph, sizeof(ph));
-    memcpy(pbuf + sizeof(ph), udp, sizeof(struct udphdr) + payload_len);
-    udp->check = checksum(pbuf, plen);
-    free(pbuf);
-
-    ip->ihl = 5;
-    ip->version = 4;
-    ip->tos = 0;
-    ip->tot_len = htons(sizeof(struct iphdr) + sizeof(struct udphdr) + payload_len);
-    ip->id = htons(rand() % 65536);
-    ip->frag_off = 0;
-    ip->ttl = 64;
-    ip->protocol = IPPROTO_UDP;
-    ip->check = 0;
-    ip->saddr = src_ip;
-    ip->daddr = dst_ip;
-    ip->check = checksum(ip, sizeof(struct iphdr));
-
-    return sizeof(struct iphdr) + sizeof(struct udphdr) + payload_len;
-}
-int main(int argc, char* argv[])
-{
-    uint32_t own_ip;
-    inet_pton(AF_INET, argv[1], &own_ip);
-
-    int sock = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
-    if (sock < 0)
+    for (int i = 0; i < nclients; i++)
     {
-        perror("couldn't create a socket");
-        return 1;
+        if (clients[i].ip.s_addr == addr->sin_addr.s_addr && clients[i].port == addr->sin_port)
+        {
+            return i;
+        }
     }
+    return -1;
+}
 
-    int one = 1;
-    setsockopt(sock, IPPROTO_IP, IP_HDRINCL, &one, sizeof(one));
+void remove_client(int idx)
+{
+    clients[idx] = clients[nclients - 1];
+    nclients--;
+}
 
-    printf("sever: listening\n");
+int main()
+{
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    struct sockaddr_in addr = { .sin_family = AF_INET, .sin_addr.s_addr = htonl(INADDR_ANY), .sin_port = htons(PORT) };
+    bind(fd, (struct sockaddr*)&addr, sizeof(addr));
+
+    printf("server: listening on udp port %d\n", PORT);
     fflush(stdout);
 
-    char buf[2048];
-    char packet[2048];
+    char buf[1024];
 
-    while(1)
+    while (1)
     {
         struct sockaddr_in from;
         socklen_t fromlen = sizeof(from);
-        ssize_t n = recvfrom(sock, buf, sizeof(buf), 0, (struct sockaddr*)&from, &fromlen);
-        if (n < (ssize_t)sizeof(struct iphdr)) continue;
+        ssize_t n = recvfrom(fd, buf, sizeof(buf) - 1, 0, (struct sockaddr*)&from, &fromlen);
+        if (n <= 0) continue;
+        buf[n] = '\0';
 
-        struct iphdr* ip = (struct iphdr*)buf;
-        int ip_hlen = ip->ihl * 4;
-        if (n < ip_hlen + (ssize_t)sizeof(struct udphdr)) continue;
+        int idx = find_client(&from);
 
-        struct udphdr* udp = (struct udphdr*)(buf + ip_hlen);
-        if (ntohs(udp->dest) != PORT) continue;
+        if (strcmp(buf, "CLOSE") == 0)
+        {
+            if (idx != -1)
+            {
+                printf("server: %s:%d closed, counter reset\n", inet_ntoa(from.sin_addr), ntohs(from.sin_port));
+                fflush(stdout);
+                remove_client(idx);
+            }
+            continue;
+        }
 
-        int udp_len = ntohs(udp->len);
-        int payload_len = udp_len - sizeof(struct udphdr);
-        if (payload_len <= 0 || ip_hlen + udp_len > n) continue;
+        if (idx == -1)
+        {
+            if (nclients >= MAX_CLIENTS) continue;
+            idx = nclients++;
+            clients[idx].ip = from.sin_addr;
+            clients[idx].port = from.sin_port;
+            clients[idx].counter = 0;
+        }
 
-        char* payload = buf + ip_hlen + sizeof(struct udphdr);
+        clients[idx].counter++;
 
-        struct in_addr src;
-        src.s_addr = ip->saddr;
-        printf("server: from %s:%d: %.*s", inet_ntoa(src), ntohs(udp->source), payload_len, payload);
+        char reply[1100];
+        int len = snprintf(reply, sizeof(reply), "%s %d", buf, clients[idx].counter);
+        sendto(fd, reply, len, 0, (struct sockaddr*)&from, fromlen);
+
+        printf("server: %s:%d -> \"%s\"\n", inet_ntoa(from.sin_addr), ntohs(from.sin_port), reply);
         fflush(stdout);
-
-        int plen = build_packet(packet, own_ip, PORT, ip->saddr, ntohs(udp->source), payload, payload_len);
-
-        struct sockaddr_in dst = { .sin_family = AF_INET, .sin_addr.s_addr = ip->saddr };
-        sendto(sock, packet, plen, 0, (struct sockaddr*)&dst, sizeof(dst));
     }
 
-    close(sock);
+    close(fd);
     return 0;
 }
