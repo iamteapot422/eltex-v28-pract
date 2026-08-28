@@ -27,11 +27,19 @@ void install_signal_handlers()
     signal(SIGPIPE, SIG_IGN);
 }
 
+typedef enum
+{
+    CMD_NONE = 0,
+    CMD_TASK,
+    CMD_STATUS
+} pending_cmd_t;
+
 typedef struct
 {
     pid_t pid;
     int in_fd;
     int out_fd;
+    pending_cmd_t pending;
 } driver_ref_t;
 
 static driver_ref_t drivers[MAX_DRIVERS];
@@ -185,6 +193,7 @@ void create_driver()
     drivers[ndrivers].pid = pid;
     drivers[ndrivers].in_fd = in_fd;
     drivers[ndrivers].out_fd = out_fd;
+    drivers[ndrivers].pending = CMD_NONE;
     ndrivers++;
 
     printf("driver created, pid=%d\n", pid);
@@ -198,20 +207,16 @@ void send_task(int pid, int timer)
         printf("no such driver\n");
         return;
     }
+    if (drivers[idx].pending != CMD_NONE)
+    {
+        printf("driver %d is still processing a previous request\n", pid);
+        return;
+    }
 
     char cmd[64];
     snprintf(cmd, sizeof(cmd), "TASK %d\n", timer);
     write(drivers[idx].in_fd, cmd, strlen(cmd));
-
-    char reply[64];
-    if (read_line(drivers[idx].out_fd, reply, sizeof(reply)) < 0)
-    {
-        printf("driver not responding\n");
-        return;
-    }
-
-    if (strncmp(reply, "Busy", 4) == 0) printf("%s\n", reply);
-    else printf("task sent\n");
+    drivers[idx].pending = CMD_TASK;
 }
 
 void get_status(int pid)
@@ -222,31 +227,55 @@ void get_status(int pid)
         printf("no such driver\n");
         return;
     }
-
-    write(drivers[idx].in_fd, "STATUS\n", 7);
-    char reply[64];
-    if (read_line(drivers[idx].out_fd, reply, sizeof(reply)) < 0)
+    if (drivers[idx].pending != CMD_NONE)
     {
-        printf("driver not responding\n");
+        printf("driver %d is still processing a previous request\n", pid);
         return;
     }
 
-    printf("%d: %s\n", pid, reply);
+    write(drivers[idx].in_fd, "STATUS\n", 7);
+    drivers[idx].pending = CMD_STATUS;
 }
 
 void get_drivers()
 {
     for (int i = 0; i < ndrivers; i++)
     {
+        if (drivers[i].pending != CMD_NONE) continue;
         write(drivers[i].in_fd, "STATUS\n", 7);
-        char reply[64];
-        if (read_line(drivers[i].out_fd, reply, sizeof(reply)) < 0)
-        {
-            printf("%d: not responding\n", drivers[i].pid);
-            continue;
-        }
-        printf("%d: %s\n", drivers[i].pid, reply);
+        drivers[i].pending = CMD_STATUS;
     }
+}
+
+void handle_driver_reply(int idx)
+{
+    char reply[64];
+    if (read_line(drivers[idx].out_fd, reply, sizeof(reply)) < 0)
+    {
+        printf("driver %d not responding\n", drivers[idx].pid);
+        drivers[idx].pending = CMD_NONE;
+        return;
+    }
+
+    switch (drivers[idx].pending)
+    {
+        case CMD_TASK:
+            if (strncmp(reply, "Busy", 4) == 0)
+                printf("%s\n", reply);
+            else
+                printf("task sent\n");
+            break;
+
+        case CMD_STATUS:
+            printf("%d: %s\n", drivers[idx].pid, reply);
+            break;
+
+        default:
+            printf("%d: unexpected reply: %s\n", drivers[idx].pid, reply);
+            break;
+    }
+
+    drivers[idx].pending = CMD_NONE;
 }
 
 void shutdown_all_drivers()
@@ -264,40 +293,94 @@ void shutdown_all_drivers()
     printf("all drivers stopped\n");
 }
 
+void handle_console_line(char* line)
+{
+    int pid_arg, timer_arg;
+
+    if (strcmp(line, "create_driver") == 0)
+    {
+        create_driver();
+    }
+    else if (sscanf(line, "send_task %d %d", &pid_arg, &timer_arg) == 2)
+    {
+        send_task(pid_arg, timer_arg);
+    }
+    else if (sscanf(line, "get_status %d", &pid_arg) == 1)
+    {
+        get_status(pid_arg);
+    }
+    else if (strcmp(line, "get_drivers") == 0)
+    {
+        get_drivers();
+    }
+    else if (strlen(line) > 0)
+    {
+        printf("unknown command\n");
+    }
+}
+
 int main()
 {
     install_signal_handlers();
 
     char line[128];
 
+    printf("> ");
+    fflush(stdout);
+
     while (!g_stop)
     {
-        printf("> ");
-        fflush(stdout);
-        if (fgets(line, sizeof(line), stdin) == NULL) break;
-        line[strcspn(line, "\n")] = '\0';
+        fd_set rfds;
+        FD_ZERO(&rfds);
+        FD_SET(STDIN_FILENO, &rfds);
+        int maxfd = STDIN_FILENO;
 
-        int pid_arg, timer_arg;
+        for (int i = 0; i < ndrivers; i++)
+        {
+            if (drivers[i].out_fd >= 0)
+            {
+                FD_SET(drivers[i].out_fd, &rfds);
+                if (drivers[i].out_fd > maxfd) maxfd = drivers[i].out_fd;
+            }
+        }
 
-        if (strcmp(line, "create_driver") == 0)
+        int r = select(maxfd + 1, &rfds, NULL, NULL, NULL);
+        if (r < 0)
         {
-            create_driver();
+            if (errno == EINTR) continue;
+            perror("select");
+            break;
         }
-        else if (sscanf(line, "send_task %d %d", &pid_arg, &timer_arg) == 2)
+
+        if (FD_ISSET(STDIN_FILENO, &rfds))
         {
-            send_task(pid_arg, timer_arg);
+            if (fgets(line, sizeof(line), stdin) == NULL)
+            {
+                g_stop = 1;
+            }
+            else
+            {
+                line[strcspn(line, "\n")] = '\0';
+                handle_console_line(line);
+                if (!g_stop)
+                {
+                    printf("> ");
+                    fflush(stdout);
+                }
+            }
         }
-        else if (sscanf(line, "get_status %d", &pid_arg) == 1)
+
+        for (int i = 0; i < ndrivers; i++)
         {
-            get_status(pid_arg);
-        }
-        else if (strcmp(line, "get_drivers") == 0)
-        {
-            get_drivers();
-        }
-        else if (strlen(line) > 0)
-        {
-            printf("unknown command\n");
+            if (drivers[i].out_fd >= 0 && FD_ISSET(drivers[i].out_fd, &rfds))
+            {
+                handle_driver_reply(i);
+                if (!g_stop)
+                {
+                    printf("> ");
+                    fflush(stdout);
+                }
+            }
         }
     }
 
