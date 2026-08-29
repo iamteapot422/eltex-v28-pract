@@ -21,7 +21,7 @@ __used __section("__versions") = {
 	{ 0xd272d446, "__x86_return_thunk" },
 	{ 0xd272d446, "__fentry__" },
 	{ 0xe8213e80, "_printk" },
-	{ 0xe9196a28, "module_layout" },
+	{ 0xd954c786, "module_layout" },
 };
 
 static const u32 ____version_ext_crcs[]
@@ -29,7 +29,7 @@ __used __section("__version_ext_crcs") = {
 	0xd272d446,
 	0xd272d446,
 	0xe8213e80,
-	0xe9196a28,
+	0xd954c786,
 };
 static const char ____version_ext_names[]
 __used __section("__version_ext_names") =

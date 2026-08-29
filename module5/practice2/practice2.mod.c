@@ -23,14 +23,14 @@ __used __section("__versions") = {
 	{ 0xa61fd7aa, "__check_object_size" },
 	{ 0x092a35a2, "_copy_to_user" },
 	{ 0xd272d446, "__x86_return_thunk" },
-	{ 0x092a35a2, "_copy_from_user" },
-	{ 0x26772f20, "remove_proc_entry" },
+	{ 0xce279400, "remove_proc_entry" },
 	{ 0xcb8b6ec6, "kfree" },
-	{ 0xdef8136e, "proc_create" },
+	{ 0x092a35a2, "_copy_from_user" },
+	{ 0x6b01a33d, "proc_create" },
 	{ 0xbd03ed67, "random_kmalloc_seed" },
-	{ 0xc4fee520, "kmalloc_caches" },
-	{ 0x4574d0c7, "__kmalloc_cache_noprof" },
-	{ 0xe9196a28, "module_layout" },
+	{ 0x9f568b3d, "kmalloc_caches" },
+	{ 0xea8ca849, "__kmalloc_cache_noprof" },
+	{ 0xd954c786, "module_layout" },
 };
 
 static const u32 ____version_ext_crcs[]
@@ -40,14 +40,14 @@ __used __section("__version_ext_crcs") = {
 	0xa61fd7aa,
 	0x092a35a2,
 	0xd272d446,
-	0x092a35a2,
-	0x26772f20,
+	0xce279400,
 	0xcb8b6ec6,
-	0xdef8136e,
+	0x092a35a2,
+	0x6b01a33d,
 	0xbd03ed67,
-	0xc4fee520,
-	0x4574d0c7,
-	0xe9196a28,
+	0x9f568b3d,
+	0xea8ca849,
+	0xd954c786,
 };
 static const char ____version_ext_names[]
 __used __section("__version_ext_names") =
@@ -56,9 +56,9 @@ __used __section("__version_ext_names") =
 	"__check_object_size\0"
 	"_copy_to_user\0"
 	"__x86_return_thunk\0"
-	"_copy_from_user\0"
 	"remove_proc_entry\0"
 	"kfree\0"
+	"_copy_from_user\0"
 	"proc_create\0"
 	"random_kmalloc_seed\0"
 	"kmalloc_caches\0"
