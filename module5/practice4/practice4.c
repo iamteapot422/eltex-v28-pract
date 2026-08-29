@@ -134,5 +134,5 @@ module_init(mychardev_init);
 module_exit(mychardev_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("You");
-MODULE_DESCRIPTION("Simple chardev for userspace <-> kernel exchange");
+MODULE_AUTHOR("Bogdan Novitskiy");
+MODULE_DESCRIPTION("mychardev");
